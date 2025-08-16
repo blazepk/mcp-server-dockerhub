@@ -29,9 +29,3 @@ export const ListTagsArgsSchema = z.object({
 export const StatsArgsSchema = z.object({
   repository: z.string(),
 });
-
-export type SearchImagesArgs = z.infer<typeof SearchImagesArgsSchema>;
-export type RepositoryArgs = z.infer<typeof RepositoryArgsSchema>;
-export type CompareImagesArgs = z.infer<typeof CompareImagesArgsSchema>;
-export type ListTagsArgs = z.infer<typeof ListTagsArgsSchema>;
-export type StatsArgs = z.infer<typeof StatsArgsSchema>;

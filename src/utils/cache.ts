@@ -1,4 +1,4 @@
-import type { DockerHubClient } from '../types/dockerhub.js';
+import type { DockerHubClient } from '../types/dockerhub';
 import { CACHE_MAX_SIZE } from '../config/runtime.js';
 
 export function getCached<T = unknown>(client: DockerHubClient, key: string): T | null {

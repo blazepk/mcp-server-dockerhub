@@ -102,7 +102,8 @@ export async function getImageManifest(
         const authJson: any = await authRes.json();
         bearer = authJson.token;
       }
-    } catch {
+    } catch (error) {
+      // Ignore auth errors; we'll try unauthenticated manifest fetch
     }
   }
 

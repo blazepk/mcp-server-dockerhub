@@ -1,5 +1,5 @@
 export function formatSearchResults(searchResult: any): any {
-  if (!searchResult || !searchResult.results) {
+  if (!searchResult?.results) {
     return {
       count: 0,
       results: [],
@@ -48,7 +48,7 @@ export function formatImageDetails(repoInfo: any, tagsInfo: any, tag: string): a
 }
 
 export function formatTagsResponse(tagsResponse: any): any {
-  if (!tagsResponse || !tagsResponse.results) {
+  if (!tagsResponse?.results) {
     return {
       count: 0,
       tags: [],

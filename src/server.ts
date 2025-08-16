@@ -8,6 +8,7 @@ import type { DockerHubClient } from './types/dockerhub.js';
 import { DOCKER_REGISTRY_URL } from './config/runtime.js';
 import { createRateLimiter } from './utils/rate-limiter.js';
 import { logger } from './utils/logger.js';
+import { handleToolCall as dispatchTool } from "./core/tool-dispatch.js";
 
 const createMCPServer = () => new Server(
   {
@@ -24,9 +25,8 @@ const createDockerClient = (): DockerHubClient => {
   return createClient({ username, password, registryUrl: DOCKER_REGISTRY_URL });
 };
 
-import { handleToolCall as dispatchTool } from './core/tool-dispatch.js';
 
-const handleToolCall = async (client: DockerHubClient, name: string, args: any) => dispatchTool(client, name, args);
+
 
 const setupToolsHandler = (server: Server) => {
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: ALL_TOOLS }));
@@ -50,7 +50,7 @@ const setupCallHandler = (server: Server, client: DockerHubClient) => {
 
     try {
       logger.info('claude_tool_request', { reqId, tool, args });
-      const result = await handleToolCall(client, tool, args);
+      const result = await dispatchTool(client, tool, args);
       logger.info('claude_tool_response', { reqId, tool, success: true });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error) {
