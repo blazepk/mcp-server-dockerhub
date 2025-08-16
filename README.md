@@ -47,18 +47,19 @@ npm run inspect
 
 ## 🔧 Features
 
-### 11 Powerful Tools
-- **8 Core Tools**: Search, details, tags, manifest, layers, compare, dockerfile, stats
-- **3 Bonus Tools**: Pull size estimation, image history, security assessment
+### 12 Tools
+- Search images, image details, list tags, get manifest
+- Analyze layers, compare images, estimate pull size
+- Get Dockerfile info, stats, vulnerabilities, image history, track base updates
 
 ### Key Capabilities
-- ✅ Intelligent caching with TTL
-- ✅ Rate limiting and authentication
+- ✅ Caching with TTL and simple eviction
+- ✅ Optional authentication and private registry support
 - ✅ Comprehensive error handling
-- ✅ TypeScript with full type safety
+- ✅ TypeScript with strong safety checks
 - ✅ Docker containerization support
 - ✅ MCP protocol compliant
-- ✅ Extensive testing suite
+- ✅ Unit tests for core and client modules
 
 ## 📚 Claude Desktop Setup
 
@@ -79,7 +80,12 @@ npm run build
       "env": {
         "CACHE_TTL_SECONDS": "300",
         "CACHE_MAX_SIZE": "1000",
-        "RATE_LIMIT_REQUESTS_PER_MINUTE": "100",
+        "REQUEST_TIMEOUT_MS": "10000",
+        "DOCKERHUB_USERNAME": "",
+        "DOCKERHUB_PASSWORD": "",
+        "PRIVATE_REGISTRY_URL": "",
+        "PRIVATE_REGISTRY_USERNAME": "",
+        "PRIVATE_REGISTRY_PASSWORD": "",
         "LOG_LEVEL": "info"
       }
     }
@@ -100,19 +106,32 @@ docker run -d --name dockerhub-mcp dockerhub-mcp-server
 
 ### Environment Variables
 ```bash
-DOCKERHUB_USERNAME=your_username     # Optional
-DOCKERHUB_PASSWORD=your_token        # Optional
-CACHE_TTL_SECONDS=300               # Cache TTL
-RATE_LIMIT_REQUESTS_PER_MINUTE=100  # Rate limit
-LOG_LEVEL=info                      # Logging level
+DOCKERHUB_USERNAME=your_username           # Optional
+DOCKERHUB_PASSWORD=your_token              # Optional
+PRIVATE_REGISTRY_URL=                      # Optional, overrides Docker Hub
+PRIVATE_REGISTRY_USERNAME=                 # Optional
+PRIVATE_REGISTRY_PASSWORD=                 # Optional
+CACHE_TTL_SECONDS=300                      # Cache TTL
+CACHE_MAX_SIZE=1000                        # Cache max entries
+REQUEST_TIMEOUT_MS=10000                   # HTTP request timeout
+RATE_LIMIT_REQUESTS_PER_MINUTE=100         # Global token bucket rate limit
+LOG_LEVEL=info                             # error|warn|info|debug
 ```
+
+### Rate Limiting
+- Global token bucket enforced in MCP CallTool handler
+- When exceeded, server returns MCP error response content with `{ "error": "Rate limit exceeded" }`
+
+### Structured Logging
+- JSON-formatted lines with fields: ts, level, msg, optional context (reqId, tool, message)
+- Controlled via LOG_LEVEL
+- Important events logged: auth_start/success/failed, call_tool_start/success/error, rate_limit_exceeded, server_connected
 
 ## 🧪 Testing
 
 ```bash
 npm test                    # Run all tests
 npm run inspect            # Interactive web testing
-./dev-tools.sh test        # Development testing
 ```
 
 ## 📖 API Examples

@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # DockerHub MCP Server
   dockerhub-mcp-server:
     build: .
     container_name: dockerhub-mcp-server
@@ -23,7 +22,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # Local Docker Registry for testing
   local-registry:
     image: registry:2
     container_name: local-docker-registry
@@ -35,7 +33,6 @@ services:
       - registry-data:/var/lib/registry
     restart: unless-stopped
 
-  # Registry UI for testing
   registry-ui:
     image: joxit/docker-registry-ui:latest
     container_name: registry-ui
