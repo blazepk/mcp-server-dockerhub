@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # DockerHub MCP Server
+  dockerhub-mcp-server:
+    build: .
+    container_name: dockerhub-mcp-server
+    environment:
+      - DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME:-}
+      - DOCKERHUB_PASSWORD=${DOCKERHUB_PASSWORD:-}
+      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS:-300}
+      - CACHE_MAX_SIZE=${CACHE_MAX_SIZE:-1000}
+      - RATE_LIMIT_REQUESTS_PER_MINUTE=${RATE_LIMIT_REQUESTS_PER_MINUTE:-100}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./src:/app/src:ro
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Local Docker Registry for testing
+  local-registry:
+    image: registry:2
+    container_name: local-docker-registry
+    ports:
+      - "5000:5000"
+    environment:
+      - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/var/lib/registry
+    volumes:
+      - registry-data:/var/lib/registry
+    restart: unless-stopped
+
+  # Registry UI for testing
+  registry-ui:
+    image: joxit/docker-registry-ui:latest
+    container_name: registry-ui
+    ports:
+      - "8080:80"
+    environment:
+      - SINGLE_REGISTRY=true
+      - REGISTRY_TITLE=Local Docker Registry
+      - DELETE_IMAGES=true
+      - SHOW_CONTENT_DIGEST=true
+      - NGINX_PROXY_PASS_URL=http://local-registry:5000
+      - SHOW_CATALOG_NB_TAGS=true
+      - CATALOG_MIN_BRANCHES=1
+      - CATALOG_MAX_BRANCHES=1
+      - TAGLIST_PAGE_SIZE=100
+      - REGISTRY_SECURED=false
+      - CATALOG_ELEMENTS_LIMIT=1000
+    depends_on:
+      - local-registry
+    restart: unless-stopped
+
+volumes:
+  registry-data:
